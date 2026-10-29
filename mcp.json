@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "scraper": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${PLUGIN_ROOT}/dist/main.js", "--stdio"],
+      "env": {
+        "DOUYIN_BROWSER_EXECUTABLE": ""
+      },
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "@genagent/scraper",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "GenAgent multi-platform collection MCP App",
+  "main": "dist/main.js",
+  "bin": {
+    "mcp-scraper": "dist/main.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "plugin.json",
+    "mcp.json"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit && cross-env INPUT=mcp-app.html vite build && node scripts/bundle-server.mjs",
+    "test": "tsx --test src/server/*.test.ts",
+    "test:browser": "tsx --test scripts/check-browser.ts",
+    "serve": "node dist/main.js --stdio",
+    "start:stdio": "cross-env NODE_ENV=development npm run build 1>&2 && npm run serve",
+    "dev": "cross-env NODE_ENV=development concurrently \"cross-env INPUT=mcp-app.html vite build --watch\" \"tsx --watch main.ts --stdio\""
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@modelcontextprotocol/ext-apps": "^2.0.0",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.2",
+    "lucide-react": "^1.46.0",
+    "puppeteer-core": "^24.43.1",
+    "puppeteer-extra": "3.3.6",
+    "puppeteer-extra-plugin-stealth": "2.11.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.20.3",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
+    "terser": "^5.51.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}

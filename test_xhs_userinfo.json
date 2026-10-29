@@ -1,0 +1,16 @@
+{
+    "code": 0,
+    "success": true,
+    "msg": "成功",
+    "data": {
+        "gender": 1,
+        "user_id": "6209c3b50000000010009d82",
+        "desc": "",
+        "images": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ut1p3gejq005og9oeqk17c2innr6j8?imageView2/2/w/360/format/webp",
+        "imageb": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ut1p3gejq005og9oeqk17c2innr6j8?imageView2/2/w/540/format/webp",
+        "guest": false,
+        "xsec_token": "ABorICGCiBxEYe_KfncS09PeakGtmDD8VPO_GnAcF7IJ4=",
+        "red_id": "1642782650",
+        "nickname": "陈平安"
+    }
+}

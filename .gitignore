@@ -1,0 +1,33 @@
+# Dependencies and generated build output
+node_modules/
+dist/
+
+# Local configuration and runtime data
+.env
+.env.*
+!.env.example
+*.local
+.local/
+.workbuddy/
+browser-profile/
+data/
+results/
+videos/
+video-manifests/
+diagnostics/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Logs, temporary files, and editor state
+*.log
+*.tmp
+coverage/
+.vite/
+.tmp/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

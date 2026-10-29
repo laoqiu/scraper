@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "genagent.scraper",
+  "version": "0.1.0",
+  "description": "多平台公开内容采集插件：支持抖音、快手和小红书的视频与用户内容搜索、筛选、采集和保存。",
+  "author": {
+    "name": "GenAgent"
+  },
+  "license": "MIT",
+  "keywords": ["scraper", "douyin", "kuaishou", "xiaohongshu", "video", "genagent"]
+}
