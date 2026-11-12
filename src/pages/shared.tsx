@@ -3,7 +3,7 @@ import type { CallToolResult } from "@modelcontextprotocol/client";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { FolderOpen } from "lucide-react";
-import type { DouyinAccount, PersistedState, UserFilters, VideoCollectionResult, VideoFilters } from "../server/types";
+import type { DouyinAccount, PersistedState, PlatformId, UserFilters, VideoCollectionResult, VideoFilters } from "../server/types";
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../components/ui/empty";
@@ -35,12 +35,24 @@ export function errorText(result: CallToolResult): string | undefined {
   return item?.type === "text" ? item.text : "操作失败";
 }
 
-export async function readPersistedState(app: App, secUid?: string, jobId?: string): Promise<PersistedState | undefined> {
+export async function readPersistedState(app: App, secUid?: string, jobId?: string, platform?: PlatformId): Promise<PersistedState | undefined> {
   const response = await app.callServerTool({
     name: "state.get",
     arguments: { ...(secUid ? { secUid } : {}), ...(jobId ? { jobId } : {}) },
   });
-  return structured<{ state?: PersistedState }>(response)?.state;
+  const state = structured<{ state?: PersistedState }>(response)?.state;
+  if (!state || !platform) return state;
+  const matches = (entry?: { platform?: PlatformId }) => entry && (entry.platform ?? "douyin") === platform;
+  const idle = { status: "idle" as const, pages: 0, maxPages: DEFAULT_MAX_PAGES, itemCount: 0 };
+  return {
+    ...state,
+    lastVideoSearch: matches(state.lastVideoSearch) ? state.lastVideoSearch : undefined,
+    lastVideos: matches(state.lastVideos) ? state.lastVideos : undefined,
+    videoProgress: matches(state.lastVideoSearch ?? state.lastVideos) ? state.videoProgress : idle,
+    lastUserSearch: matches(state.lastUserSearch) ? state.lastUserSearch : undefined,
+    lastUsers: matches(state.lastUsers) ? state.lastUsers : undefined,
+    userProgress: matches(state.lastUserSearch ?? state.lastUsers) ? state.userProgress : idle,
+  };
 }
 
 export function CaptchaDialog({ app }: { app: App }) {

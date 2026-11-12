@@ -7,23 +7,31 @@ import { Card } from "../components/ui/card";
 import type { LoginState, PlatformId } from "../server/types";
 import { errorText, PageHeader, structured } from "./shared";
 
-export function LoginPage({ app, initialResult, platform = "douyin" }: { app: App; initialResult: CallToolResult | null; platform?: PlatformId }) {
+export function LoginPage({ app, initialResult, platform = "douyin", manual = false }: {
+  app: App;
+  initialResult: CallToolResult | null;
+  platform?: PlatformId;
+  manual?: boolean;
+}) {
   const initial = structured<{ login?: LoginState }>(initialResult)?.login;
   const [login, setLogin] = useState<LoginState | undefined>(initial);
-  const [busy, setBusy] = useState(!initialResult);
+  const [busy, setBusy] = useState(!manual && !initialResult);
   const [error, setError] = useState<string | undefined>(initialResult ? errorText(initialResult) : undefined);
   const [success, setSuccess] = useState<string>();
   const [xiaohongshuProfile, setXiaohongshuProfile] = useState<{ nickname?: string; redId?: string; avatarUrl?: string; signature?: string }>();
 
   useEffect(() => {
-    if (!initialResult) return;
+    if (!initialResult) {
+      if (manual) setBusy(false);
+      return;
+    }
     setBusy(false);
     setError(errorText(initialResult));
     const next = structured<{ login?: LoginState }>(initialResult)?.login;
     if (next) setLogin(next);
     const profile = structured<{ profile?: { nickname?: string; redId?: string; avatarUrl?: string; signature?: string } }>(initialResult)?.profile;
     if (profile) setXiaohongshuProfile(profile);
-  }, [initialResult]);
+  }, [initialResult, manual]);
 
   const reopen = async () => {
     setBusy(true);
@@ -36,7 +44,8 @@ export function LoginPage({ app, initialResult, platform = "douyin" }: { app: Ap
       setError(message);
       if (next) {
         setLogin(next);
-        if (!message && next.account) {
+        const capabilities = app.getHostCapabilities();
+        if (!message && next.account && (capabilities?.updateModelContext || capabilities?.message)) {
           const text = [
             "用户登录成功",
             "",
@@ -44,8 +53,10 @@ export function LoginPage({ app, initialResult, platform = "douyin" }: { app: Ap
             `关注：${next.account.followingCount}`,
             `粉丝：${next.account.followerCount}`,
           ].join("\n");
-          await app.updateModelContext({ content: [{ type: "text", text }], structuredContent: { douyinAccount: next.account } });
-          await app.sendMessage({ role: "user", content: [{ type: "text", text }] });
+          if (capabilities.updateModelContext) {
+            await app.updateModelContext({ content: [{ type: "text", text }], structuredContent: { douyinAccount: next.account } });
+          }
+          if (capabilities.message) await app.sendMessage({ role: "user", content: [{ type: "text", text }] });
         }
       }
       const profile = structured<{ profile?: { nickname?: string; redId?: string; avatarUrl?: string; signature?: string } }>(result)?.profile;
@@ -76,7 +87,9 @@ export function LoginPage({ app, initialResult, platform = "douyin" }: { app: Ap
         authenticated={status === "authenticated"}
         meta={account ? <div className="creator-profile-meta"><span>关注 {account.followingCount}</span><span>| 粉丝 {account.followerCount}</span></div> : undefined}
       />
-      <Button className="primary login-action" disabled={busy} onClick={() => void reopen()}>{busy ? "等待登录…" : "重新打开登录"}</Button>
+      <Button className="primary login-action" disabled={busy} onClick={() => void reopen()}>
+        {busy ? "等待登录…" : manual ? "打开登录窗口" : "重新打开登录"}
+      </Button>
     </Card>
   </main>;
 }

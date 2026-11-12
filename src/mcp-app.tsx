@@ -51,7 +51,7 @@ function AppView({ app, toolInput, toolResult, hostContext }: AppViewProps) {
   let page;
   switch (route) {
     case "login":
-      page = <LoginPage app={app} initialResult={toolResult} platform={platform} />;
+      page = <LoginPage app={app} initialResult={toolResult} platform={platform} manual={hostContext?.scraperManualLogin === true} />;
       break;
     case "user-search":
       page = <UserSearchPage app={app} initialInput={pageInput} initialResult={toolResult} platform={platform} onOpenUserDetail={(user) => {

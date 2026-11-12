@@ -104,7 +104,7 @@ export function useVideoCollection({
     let timer: number | undefined;
     const refresh = async () => {
       try {
-        const state = await readPersistedState(app, undefined, jobId);
+        const state = await readPersistedState(app, undefined, jobId, platform);
         if (!active) return;
         const restoreSearchInput = initialInput.keyword === undefined && initialInput.filters === undefined;
         if (restoreSearchInput && !manualRun.current) {
@@ -167,7 +167,7 @@ export function useVideoCollection({
       active = false;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [app, initialResult, jobId]);
+  }, [app, initialResult, jobId, platform]);
 
   const run = async () => {
     if (!query.trim()) return;
@@ -196,7 +196,7 @@ export function useVideoCollection({
       }
       const nextJobId = (structured<{ jobId?: unknown }>(response)?.jobId as string | undefined) ?? jobId;
       if (nextJobId) setJobId(nextJobId);
-      const state = await readPersistedState(app, undefined, nextJobId);
+      const state = await readPersistedState(app, undefined, nextJobId, platform);
       const next = state?.lastVideos;
       if (next) {
         setResult(next);
@@ -241,7 +241,7 @@ export function useVideoCollection({
       const response = await app.callServerTool({ name: searchToolName, arguments: { keyword: query.trim(), filters: submittedFilters, maxPages: nextPage } });
       const message = errorText(response);
       setError(message);
-      const state = !message ? await readPersistedState(app, undefined, jobId) : undefined;
+      const state = !message ? await readPersistedState(app, undefined, jobId, platform) : undefined;
       const next = state?.lastVideos;
       if (!message && next) {
         setResult(next);

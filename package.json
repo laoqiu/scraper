@@ -4,6 +4,7 @@
   "type": "module",
   "description": "GenAgent multi-platform collection MCP App",
   "main": "dist/main.js",
+  "workspaces": ["dsh"],
   "bin": {
     "mcp-scraper": "dist/main.js"
   },
@@ -14,7 +15,8 @@
     "mcp.json"
   ],
   "scripts": {
-    "build": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit && cross-env INPUT=mcp-app.html vite build && node scripts/bundle-server.mjs",
+    "build": "npm run typecheck && cross-env INPUT=mcp-app.html vite build && node scripts/bundle-server.mjs && node scripts/bundle-dsh.mjs",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit && tsc -p dsh/tsconfig.host.json && tsc -p dsh/tsconfig.client.json",
     "test": "tsx --test src/server/*.test.ts",
     "test:browser": "tsx --test scripts/check-browser.ts",
     "serve": "node dist/main.js --stdio",

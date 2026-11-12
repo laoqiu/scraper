@@ -44,6 +44,48 @@ node dist/main.js --stdio --ui
 
 也可以在 GitHub 上[查看安装说明](./INSTALL_WORKBUDDY.md)。
 
+## 在 DeepSeek Harness 中使用
+
+`@dsh-private/dsh-scraper` 是位于 `dsh/` 的 Harness 插件，发布到
+`https://registry.antistudio.cn/`，下载使用目标 profile 配置的私库凭据。它使用原有的
+MCP stdio 服务和 MCP App 页面，Host 与侧栏共享同一个采集服务进程。
+插件声明支持 DSH `0.2.x`（含 alpha、beta 和 RC），需要 Node.js 24.15.0 及以上。
+开发依赖固定在 DSH `0.2.1-rc.2`，Web profile 已在该版本验证。
+仓库锁定的 MCP 客户端为 2.2.0，服务端和 MCP Apps SDK 为 2.0.0。
+
+在 scraper 根目录构建，并向 Web profile 安装本地插件：
+
+```powershell
+npm ci
+npm run build
+$scraperDsh = (Resolve-Path ./dsh).Path.Replace('\', '/')
+dsh plugin --profile web add "link:$scraperDsh"
+dsh --profile web --patch "$scraperDsh/cordis.patch.yml"
+```
+
+在会话右侧栏打开「开始」→「数据采集」。在页签内选择抖音或小红书的登录、
+内容搜索或用户搜索，从用户结果进入作品详情。模型可独立调用
+`scraper_douyin_search_videos`、`scraper_xiaohongshu_search_videos` 等工具，
+并通过 `scraper_state_get_export` 查询保存任务；结果在普通工具响应中返回。
+
+构建后可用 `npm pack --workspace @dsh-private/dsh-scraper` 生成 DSH 安装包，
+包含 Host、Client、MCP 服务、HTML 和 SQL。Desktop 通过对应 profile 的插件管理界面
+安装并启用该包。Desktop 若以 Electron 运行 Host，需从 PATH 提供受支持的 Node.js，
+并确保 `better-sqlite3` 已为该 Node.js 环境安装。
+若安装器拦截原生依赖的构建脚本，按安装器的提示授权 `better-sqlite3` 的构建。
+
+DSH 数据默认保存在当前 profile 的 `data/scraper`，包括采集专用浏览器资料、
+SQLite、结果和导出文件。同一 profile 的会话共享这份数据，页面连接随所在页签关闭。
+Host 继承已有的 `DOUYIN_*` 配置，可通过 `DOUYIN_DATA_DIR` 覆盖路径；
+每个运行中的 scraper 实例应使用独立的数据目录和播放代理端口。
+登录与采集通过本机浏览器访问所选平台，视频播放代理按需监听回环地址。
+关闭页签后已提交的保存任务继续由采集服务执行。
+
+入口缺失时检查当前 profile 是否安装了插件并应用 patch，且 `dsh/dist/`
+已由根目录构建生成。页面连接失败可在页签内重试，并检查 Host 日志；
+如果 MCP 服务进程退出，重载该插件或重启当前 profile。
+依赖版本不匹配时使用与包清单一致的 DSH 版本重新安装。
+
 ## 浏览器配置
 
 浏览器使用 `puppeteer-core` 控制本机已安装的 Chrome、Microsoft Edge 或 Chromium，安装依赖和启动插件均不会下载浏览器内核。Windows 自动查找用户目录和系统安装目录，macOS 自动查找系统及用户的 Applications 目录，Linux 查找 PATH、/usr/bin、/usr/local/bin 和 /snap/bin。

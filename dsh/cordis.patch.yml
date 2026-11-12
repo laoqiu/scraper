@@ -1,0 +1,3 @@
+- insert:
+    - id: scraper
+      name: '@dsh-private/dsh-scraper'

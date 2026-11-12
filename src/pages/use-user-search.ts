@@ -73,7 +73,7 @@ export function useUserSearch({ app, initialInput, initialResult, onOpenUserDeta
     let timer: number | undefined;
     const refresh = async () => {
       try {
-        const state = await readPersistedState(app, undefined, jobId);
+        const state = await readPersistedState(app, undefined, jobId, platform);
         if (!active) return;
         setCurrentAccountUid(state?.login.account?.uid ?? "");
         const restoreSearchInput = initialInput.keyword === undefined && initialInput.filters === undefined;
@@ -140,7 +140,7 @@ export function useUserSearch({ app, initialInput, initialResult, onOpenUserDeta
       active = false;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [app, initialResult, jobId]);
+  }, [app, initialResult, jobId, platform]);
 
   const run = async () => {
     if (!keyword.trim()) return;
@@ -168,7 +168,7 @@ export function useUserSearch({ app, initialInput, initialResult, onOpenUserDeta
       }
       const nextJobId = (structured<{ jobId?: unknown }>(response)?.jobId as string | undefined) ?? jobId;
       if (nextJobId) setJobId(nextJobId);
-      const state = await readPersistedState(app, undefined, nextJobId);
+      const state = await readPersistedState(app, undefined, nextJobId, platform);
       const next = state?.lastUsers;
       if (next) {
         setResult(next);
@@ -206,7 +206,7 @@ export function useUserSearch({ app, initialInput, initialResult, onOpenUserDeta
       const response = await app.callServerTool({ name: searchToolName, arguments: platform === "xiaohongshu" ? { keyword: keyword.trim(), maxPages: nextPage } : { keyword: keyword.trim(), filters, maxPages: nextPage } });
       const message = errorText(response);
       setError(message);
-      const state = !message ? await readPersistedState(app, undefined, jobId) : undefined;
+      const state = !message ? await readPersistedState(app, undefined, jobId, platform) : undefined;
       const next = state?.lastUsers;
       if (!message && next) {
         setResult(next);
